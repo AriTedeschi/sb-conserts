@@ -11,3 +11,24 @@ CREATE TABLE TB_CONSENT (
     additional_info varchar(50),
     foreign key (status_id) references TB_STATUS(id)
 );
+
+insert into TB_STATUS
+select
+1,
+'ACTIVE'
+WHERE
+NOT EXISTS (SELECT 1 from TB_STATUS where code='ACTIVE');
+
+insert into TB_STATUS
+select
+2,
+'REVOKED'
+WHERE
+NOT EXISTS (SELECT 1 from TB_STATUS where code='REVOKED');
+
+insert into TB_STATUS
+select
+3,
+'EXPIRED'
+WHERE
+NOT EXISTS (SELECT 1 from TB_STATUS where code='EXPIRED');

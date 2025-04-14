@@ -17,7 +17,7 @@ public enum StatusEnum {
 
     private Long id;
 
-    public StatusEnum byId(Long id)  {
+    public static StatusEnum byId(Long id)  {
         return Arrays.stream(values())
                 .filter(s -> s.id.equals(id))
                 .findFirst()
