@@ -5,4 +5,5 @@ import com.sensedia.sample.consents.application.adapter.response.CreateConsentRe
 
 public interface ConsentService {
     CreateConsentResponse create(CreateConsentRequest request);
+    CreateConsentResponse findById(String id);
 }

@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TypeEnum {
-    INVALID_INPUT("consent.error.type");
+    INVALID_INPUT("consent.error.type.input"),
+    INVALID_PARAMETER("consent.error.type.parameter");
     private String code;
 }
