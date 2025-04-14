@@ -1,0 +1,37 @@
+#Test enviroment (CI)
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - psql-data:/var/lib/postgresql/data
+      - ../src/main/resources/init-db/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+      - ./init/role.sh:/docker-entrypoint-initdb.d/role.sh
+    env_file: ./.env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#  TODO: Uncomment the sb-consents-api service
+#  sb-consents-api:
+#    build:
+#      context: ../
+#      dockerfile: ./docker/Dockerfile
+#    ports:
+#      - "8080:8080"
+#    env_file: ./.env
+#    environment:
+#      - SPRING_PROFILE=dev
+#      - SPRING_DATASOURCE_IP=${POSTGRES_IP}
+#      - SPRING_DATASOURCE_DBNAME=${POSTGRES_DB}
+#      - SPRING_DATASOURCE_SCHEAMA=${POSTGRES_SCHEAMA}
+#      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+#      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+#    depends_on:
+#      - postgres
+
+volumes:
+  psql-data:
