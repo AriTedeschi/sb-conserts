@@ -13,6 +13,6 @@ public interface CreateConsent2ConsentEntity {
     @Mapping(target = "creationDateTime", expression = "java(new com.sensedia.sample.consents.domain.model.vo.DateVO())")
     @Mapping(target = "expirationDateTime", expression = "java(request.expirationDateTime() != null ? (new com.sensedia.sample.consents.domain.model.vo.DateVO(request.expirationDateTime())) : null)")
     @Mapping(target = "status", expression = "java(request.expirationDateTime() == null ? com.sensedia.sample.consents.domain.model.enums.StatusEnum.ACTIVE.getId() : com.sensedia.sample.consents.domain.model.enums.StatusEnum.EXPIRED.getId())")
-    @Mapping(target = "additionalInfo", expression = "java(request.additionalInfo())")
+    @Mapping(target = "additionalInfo", expression = "java(new com.sensedia.sample.consents.domain.model.vo.DescriptionVO(request.additionalInfo()))")
     ConsentEntity convert(CreateConsentRequest request);
 }
