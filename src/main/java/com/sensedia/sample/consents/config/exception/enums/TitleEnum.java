@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TitleEnum {
-    CREATING("consent.error.title");
+    CREATING("consent.error.title.create"),
+    SEARCHING_BY_ID("consent.error.title.searching.by.id"),;
     private String code;
 }

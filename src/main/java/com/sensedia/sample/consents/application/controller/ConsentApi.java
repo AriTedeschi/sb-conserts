@@ -32,4 +32,10 @@ public class ConsentApi implements IConsentApi {
 				.toUri();
 		return ResponseEntity.created(location).body(response);
 	}
+
+	@Override
+	public ResponseEntity<CreateConsentResponse> findById(String id, String acceptLanguage, HttpServletRequest request) {
+		CreateConsentResponse response = service.findById(id);
+		return ResponseEntity.ok(response);
+	}
 }

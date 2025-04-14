@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum FieldsPointersEnum {
+    ID("?id"),
     CPF("#/cpf"),
     EXPERATION_DATE_TIME("#/expirationDateTime"),
     ADDITIONAL_INFO("#/additionalInfo");

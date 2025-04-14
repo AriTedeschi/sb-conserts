@@ -13,6 +13,6 @@ public interface ConsentEntity2CreateConsentResponse {
     @Mapping(target = "status", expression = "java(entity.getStatus().name())")
     @Mapping(target = "creationDateTime", expression = "java(entity.getCreationDateTime().getValue().format(java.time.format.DateTimeFormatter.ofPattern(\"dd/MM/yyyy HH:mm:ss\")))")
     @Mapping(target = "expirationDateTime", expression = "java(entity.getExpirationDateTime() != null ? entity.getExpirationDateTime().getValue().format(java.time.format.DateTimeFormatter.ofPattern(\"dd/MM/yyyy HH:mm:ss\")) : null)")
-    @Mapping(target = "additionalInfo", expression = "java(entity.getAdditionalInfo().getValue())")
+    @Mapping(target = "additionalInfo", expression = "java(entity.getAdditionalInfo() != null ? entity.getAdditionalInfo().getValue() : null)")
     CreateConsentResponse convert(ConsentEntity entity);
 }
