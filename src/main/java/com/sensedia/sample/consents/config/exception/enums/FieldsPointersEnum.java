@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum FieldsPointersEnum {
     CPF("#/cpf"),
-    EXPERATION_DATE_TIME("#/expirationDateTime");
+    EXPERATION_DATE_TIME("#/expirationDateTime"),
+    ADDITIONAL_INFO("#/additionalInfo");
     private String code;
 }

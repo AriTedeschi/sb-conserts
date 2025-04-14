@@ -39,7 +39,7 @@ class CreateConsent2ConsentEntityTest {
         assertNotNull(consentEntity.getCreationDateTime());
         assertEquals(LocalDateTime.parse(expirationDateTime, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")), consentEntity.getExpirationDateTime().getValue());
         assertEquals(StatusEnum.EXPIRED, consentEntity.getStatus());
-        assertEquals(additionalInfo, consentEntity.getAdditionalInfo());
+        assertEquals(additionalInfo, consentEntity.getAdditionalInfo().getValue());
     }
 
     @Test
@@ -79,6 +79,6 @@ class CreateConsent2ConsentEntityTest {
         assertNotNull(consentEntity.getCreationDateTime());
         assertNull(consentEntity.getExpirationDateTime());
         assertEquals(StatusEnum.ACTIVE, consentEntity.getStatus());
-        assertEquals(additionalInfo, consentEntity.getAdditionalInfo());
+        assertEquals(additionalInfo, consentEntity.getAdditionalInfo().getValue());
     }
 }

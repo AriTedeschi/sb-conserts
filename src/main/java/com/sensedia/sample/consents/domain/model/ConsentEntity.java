@@ -3,8 +3,8 @@ package com.sensedia.sample.consents.domain.model;
 import com.sensedia.sample.consents.domain.model.enums.StatusEnum;
 import com.sensedia.sample.consents.domain.model.vo.CPFVO;
 import com.sensedia.sample.consents.domain.model.vo.DateVO;
+import com.sensedia.sample.consents.domain.model.vo.DescriptionVO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,9 +36,9 @@ public class ConsentEntity {
     @AttributeOverride(name = "value", column = @Column(name = "expires_at"))
     private DateVO expirationDateTime;
 
-    @Column(name = "additional_info")
-    @Size(min = 1, max = 50)
-    private String additionalInfo;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "additional_info"))
+    private DescriptionVO additionalInfo;
 
     @Transient
     public StatusEnum getStatus() {
