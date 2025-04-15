@@ -1,5 +1,6 @@
 package com.sensedia.sample.consents.domain.service;
 
+import com.sensedia.sample.consents.application.adapter.request.ChangeConsentRequest;
 import com.sensedia.sample.consents.application.adapter.request.CreateConsentRequest;
 import com.sensedia.sample.consents.application.adapter.response.CreateConsentResponse;
 import com.sensedia.sample.consents.config.exception.DomainException;
@@ -100,6 +101,48 @@ class ConsentServiceImplTest {
             });
             //Assert
             verify(repository, times(1)).findById(id);
+        }
+    }
+
+    @Test
+    void change_updatesConsentSuccessfully() {
+        // Arrange
+        String id = "123";
+        ChangeConsentRequest request = new ChangeConsentRequest("067.793.060-70", "ACTIVE", "13/04/2025 23:01:39", null);
+        ConsentEntity existingEntity = validEntity();
+        when(repository.findById(id)).thenReturn(Optional.of(existingEntity));
+        when(repository.save(any(ConsentEntity.class))).thenReturn(existingEntity);
+
+        // Act
+        CreateConsentResponse response = consentService.change(id, request);
+
+        // Assert
+        assertNotNull(response);
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(existingEntity);
+    }
+
+    @Test
+    void change_throwsExceptionWhenConsentNotFound() {
+        try (
+                MockedStatic<ErrorContext> errorCtx = Mockito.mockStatic(ErrorContext.class)
+        ) {
+            errorCtx.when(() -> ErrorContext.throwError(any(), any(), any(), any()))
+                    .thenThrow(new DomainException(new ErrorMessage(null, null,
+                            List.of(new ErrorInfo("Consent not found with provided id", "#/id")))));
+            // Arrange
+            String id = "nonexistent-id";
+            ChangeConsentRequest request = new ChangeConsentRequest("067.793.060-70", "ACTIVE", "13/04/2025 23:01:39", null);
+            when(repository.findById(id)).thenReturn(Optional.empty());
+
+            // Act
+            DomainException exception = assertThrows(DomainException.class, () -> {
+                consentService.change(id, request);
+            });
+
+            // Assert
+            verify(repository, times(1)).findById(id);
+            verify(repository, times(0)).save(any(ConsentEntity.class));
         }
     }
 

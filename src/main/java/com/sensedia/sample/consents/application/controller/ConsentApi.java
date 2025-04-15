@@ -1,5 +1,6 @@
 package com.sensedia.sample.consents.application.controller;
 
+import com.sensedia.sample.consents.application.adapter.request.ChangeConsentRequest;
 import com.sensedia.sample.consents.application.adapter.request.CreateConsentRequest;
 import com.sensedia.sample.consents.application.adapter.response.ConsentResponse;
 import com.sensedia.sample.consents.application.adapter.response.CreateConsentResponse;
@@ -54,6 +55,13 @@ public class ConsentApi implements IConsentApi {
 		if(!ALLOWED_DIRECTION.contains(direction)) direction="DESC";
 		Pageable pageRequest = PageRequest.of(page, linesPerPage, Sort.Direction.valueOf(direction), orderBy);
 		return ResponseEntity.ok(service.search(pageRequest, filters));
+	}
+
+	@Override
+	public ResponseEntity<CreateConsentResponse> change(String id, ChangeConsentRequest changeConsentRequest,
+														String acceptLanguage, HttpServletRequest request) {
+		CreateConsentResponse response = service.change(id, changeConsentRequest);
+		return ResponseEntity.ok(response);
 	}
 
 }
