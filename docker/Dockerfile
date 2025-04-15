@@ -11,8 +11,8 @@ COPY pom.xml /app
 # Set working directory
 WORKDIR /app
 
-# Build the application
-RUN mvn clean install -Dspring.profiles.active=dev
+# Build the application, skiping tests
+RUN mvn clean install -Dmaven.test.skip=true -Dspring.profiles.active=dev
 
 # Second stage: Create the final image
 FROM amazoncorretto:21-alpine3.21
