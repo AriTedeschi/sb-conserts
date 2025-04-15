@@ -1,6 +1,7 @@
 #Test enviroment (CI)
 version: '3.9'
 
+#TODO: add a load balancer such as nginx or traefik
 services:
   postgres:
     image: postgres
@@ -15,23 +16,22 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-#  TODO: Uncomment the sb-consents-api service
-#  sb-consents-api:
-#    build:
-#      context: ../
-#      dockerfile: ./docker/Dockerfile
-#    ports:
-#      - "8080:8080"
-#    env_file: ./.env
-#    environment:
-#      - SPRING_PROFILE=dev
-#      - SPRING_DATASOURCE_IP=${POSTGRES_IP}
-#      - SPRING_DATASOURCE_DBNAME=${POSTGRES_DB}
-#      - SPRING_DATASOURCE_SCHEAMA=${POSTGRES_SCHEAMA}
-#      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-#      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-#    depends_on:
-#      - postgres
+  sb-consents-api:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file: ./.env
+    environment:
+      - SPRING_PROFILE=dev
+      - SPRING_DATASOURCE_IP=postgres #using docker-compose network name to connect to postgres
+      - SPRING_DATASOURCE_DBNAME=${POSTGRES_DB}
+      - SPRING_DATASOURCE_SCHEAMA=${POSTGRES_SCHEAMA}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
 
 volumes:
   psql-data:
