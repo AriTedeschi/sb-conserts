@@ -1,5 +1,6 @@
 package com.sensedia.sample.consents.application.controller;
 
+import com.sensedia.sample.consents.application.adapter.request.ChangeConsentRequest;
 import com.sensedia.sample.consents.application.adapter.request.CreateConsentRequest;
 import com.sensedia.sample.consents.application.adapter.response.ConsentResponse;
 import com.sensedia.sample.consents.application.adapter.response.CreateConsentResponse;
@@ -65,4 +66,18 @@ public interface IConsentApi {
 
 			@Parameter(description = "Optional filters like id, cpf, status, startsAt and endsAt")
 			@RequestParam(defaultValue = "{ \"status\": \"EXPIRED\"}") Map<String, String> filters);
+
+	@PutMapping("/consents/{id}")
+	@Operation(
+			summary = "Change consent by id",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successful", content = @Content(schema = @Schema(implementation = ChangeConsentRequest.class))),
+					@ApiResponse(responseCode = "422", description = "Field validation error format", content = @Content(schema = @Schema(implementation = ErrorMessage.class)))
+			}
+	)
+	ResponseEntity<CreateConsentResponse> change(@PathVariable String id,
+												 @RequestBody ChangeConsentRequest createRequest,
+												 @RequestHeader(value = "Accept-Language", required = false, defaultValue = "en")
+												 String acceptLanguage,
+												 HttpServletRequest request);
 }

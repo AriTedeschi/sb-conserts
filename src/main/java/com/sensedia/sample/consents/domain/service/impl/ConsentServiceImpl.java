@@ -1,5 +1,7 @@
 package com.sensedia.sample.consents.domain.service.impl;
 
+import com.sensedia.sample.consents.application.adapter.request.ChangeConsent2ConsentEntity;
+import com.sensedia.sample.consents.application.adapter.request.ChangeConsentRequest;
 import com.sensedia.sample.consents.application.adapter.response.ConsentEntity2ConsentResponse;
 import com.sensedia.sample.consents.application.adapter.response.ConsentEntity2CreateConsentResponse;
 import com.sensedia.sample.consents.application.adapter.request.CreateConsent2ConsentEntity;
@@ -60,5 +62,12 @@ public class ConsentServiceImpl implements ConsentService {
 
         return repository.search(id, cpf, status, startsAt, endsAt, pageable)
                 .map(ConsentEntity2ConsentResponse.INSTANCE::convert);
+    }
+
+    @Override
+    public CreateConsentResponse change(String id, ChangeConsentRequest request) {
+        ConsentEntity consentEntity = byId(id);
+        ChangeConsent2ConsentEntity.INSTANCE.convert(request, consentEntity);
+        return ConsentEntity2CreateConsentResponse.INSTANCE.convert(repository.save(consentEntity));
     }
 }

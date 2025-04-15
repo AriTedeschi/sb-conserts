@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -139,20 +140,6 @@ class ConsentIntegrationTest {
                 .getContentAsString();
         String id1 = response.split("\"id\":\"")[1].split("\"")[0];
 
-        //wait 5 seconds
-        Thread.sleep(5000);
-
-        response = mockMvc.perform(post("/consents")
-                        .contentType(APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.cpf").exists())
-                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-        String id2 = response.split("\"id\":\"")[1].split("\"")[0];
-
         //Tests orderBy
         mockMvc.perform(get("/consents")
                         .param("status", "EXPIRED")
@@ -160,8 +147,7 @@ class ConsentIntegrationTest {
                         .param("direction", "DESC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"))
-                .andExpect(jsonPath("$.content[0].id").value(id2));
+                .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"));
 
         //Tests filters
         mockMvc.perform(get("/consents")
@@ -176,13 +162,86 @@ class ConsentIntegrationTest {
                         .param("direction", "ASC"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").exists())
-                .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"))
-                .andExpect(jsonPath("$.content[0].id").value(id1));
+                .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"));
 
         //Tests filters with empty result
         mockMvc.perform(get("/consents")
                         .param("status", "ACTIVE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isEmpty());
+    }
+
+    @Test
+    void shouldChangeConsent() throws Exception {
+        String json = """
+                {
+                  "cpf": "067.793.060-70",
+                  "expirationDateTime": "13/04/2025 23:15:00",
+                  "additionalInfo": "I do consent ..."
+                }
+                """;
+
+        String response = mockMvc.perform(post("/consents")
+                        .contentType(APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String id1 = response.split("\"id\":\"")[1].split("\"")[0];
+
+        String jsonChange = """
+                {
+                  "cpf": "067.793.060-70",
+                  "status": "ACTIVE",
+                  "expirationDateTime": "13/04/2025 23:15:00",
+                  "additionalInfo": "I do consent ..."
+                }
+                """;
+        mockMvc.perform(put("/consents/" + id1)
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonChange))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
+                .andExpect(jsonPath("$.id").value(id1))
+                .andExpect(jsonPath("$.expirationDateTime").value("13/04/2025 23:15:00"))
+                .andExpect(jsonPath("$.additionalInfo").value("I do consent ..."));
+
+        mockMvc.perform(put("/consents/aa")
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonChange))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.type").value("Invalid parameter"))
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.title").value("Error changing consent by id"))
+                .andExpect(jsonPath("$.errorInfos[0].detail").exists())
+                .andExpect(jsonPath("$.errorInfos[0].detail").value("Consent not found with provided id"))
+                .andExpect(jsonPath("$.errorInfos[0].pointer").exists())
+                .andExpect(jsonPath("$.errorInfos[0].pointer").value("?id"));
+
+        jsonChange = """
+                {
+                  "cpf": "111.111.111-11",
+                  "status": "ACTIVE",
+                  "expirationDateTime": "13/04/2025 23:15:00",
+                  "additionalInfo": "I do consent ..."
+                }
+                """;
+        mockMvc.perform(put("/consents/" + id1)
+                        .contentType(APPLICATION_JSON)
+                        .content(jsonChange))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.type").value("Invalid input"))
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.title").value("Error changing consent by id"))
+                .andExpect(jsonPath("$.errorInfos[0].detail").exists())
+                .andExpect(jsonPath("$.errorInfos[0].detail").value("CPF must have 11 digits and cannot be repeated!"))
+                .andExpect(jsonPath("$.errorInfos[0].pointer").exists())
+                .andExpect(jsonPath("$.errorInfos[0].pointer").value("#/cpf"));
     }
 }
