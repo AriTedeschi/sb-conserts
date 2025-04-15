@@ -146,6 +146,47 @@ class ConsentServiceImplTest {
         }
     }
 
+    @Test
+    void revoke_changesStatusToRevokedSuccessfully() {
+        // Arrange
+        String id = "123";
+        ConsentEntity existingEntity = validEntity();
+        when(repository.findById(id)).thenReturn(Optional.of(existingEntity));
+        when(repository.save(any(ConsentEntity.class))).thenReturn(existingEntity);
+
+        // Act
+        CreateConsentResponse response = consentService.revoke(id);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(StatusEnum.REVOKED, existingEntity.getStatus());
+        verify(repository, times(1)).findById(id);
+        verify(repository, times(1)).save(existingEntity);
+    }
+
+    @Test
+    void revoke_throwsExceptionWhenConsentNotFound() {
+        try (
+                MockedStatic<ErrorContext> errorCtx = Mockito.mockStatic(ErrorContext.class)
+        ) {
+            errorCtx.when(() -> ErrorContext.throwError(any(), any(), any(), any()))
+                    .thenThrow(new DomainException(new ErrorMessage(null, null,
+                            List.of(new ErrorInfo("Consent not found with provided id", "#/id")))));
+            // Arrange
+            String id = "nonexistent-id";
+            when(repository.findById(id)).thenReturn(Optional.empty());
+
+            // Act
+            DomainException exception = assertThrows(DomainException.class, () -> {
+                consentService.revoke(id);
+            });
+
+            // Assert
+            verify(repository, times(1)).findById(id);
+            verify(repository, times(0)).save(any(ConsentEntity.class));
+        }
+    }
+
     private static ConsentEntity validEntity() {
         return ConsentEntity.builder()
                 .id("389d6db5-fbdb-4d2c-a352-59fb59df9d2e")

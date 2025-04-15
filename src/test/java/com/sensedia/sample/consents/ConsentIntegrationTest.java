@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -243,5 +244,47 @@ class ConsentIntegrationTest {
                 .andExpect(jsonPath("$.errorInfos[0].detail").value("CPF must have 11 digits and cannot be repeated!"))
                 .andExpect(jsonPath("$.errorInfos[0].pointer").exists())
                 .andExpect(jsonPath("$.errorInfos[0].pointer").value("#/cpf"));
+    }
+
+    @Test
+    void shouldRevokeConsent() throws Exception {
+        String json = """
+                {
+                  "cpf": "067.793.060-70",
+                  "expirationDateTime": "13/04/2025 23:15:00",
+                  "additionalInfo": "I do consent ..."
+                }
+                """;
+
+        String response = mockMvc.perform(post("/consents")
+                        .contentType(APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String id1 = response.split("\"id\":\"")[1].split("\"")[0];
+
+        mockMvc.perform(delete("/consents/" + id1))
+                .andExpect(status().isNoContent())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
+                .andExpect(jsonPath("$.id").value(id1))
+                .andExpect(jsonPath("$.status").value("REVOKED"))
+                .andExpect(jsonPath("$.expirationDateTime").value("13/04/2025 23:15:00"))
+                .andExpect(jsonPath("$.additionalInfo").value("I do consent ..."));
+
+        mockMvc.perform(delete("/consents/aa"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.type").exists())
+                .andExpect(jsonPath("$.type").value("Invalid parameter"))
+                .andExpect(jsonPath("$.title").exists())
+                .andExpect(jsonPath("$.title").value("Error deleting consent by id"))
+                .andExpect(jsonPath("$.errorInfos[0].detail").exists())
+                .andExpect(jsonPath("$.errorInfos[0].detail").value("Consent not found with provided id"))
+                .andExpect(jsonPath("$.errorInfos[0].pointer").exists())
+                .andExpect(jsonPath("$.errorInfos[0].pointer").value("?id"));
     }
 }

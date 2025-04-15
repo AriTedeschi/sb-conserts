@@ -70,4 +70,11 @@ public class ConsentServiceImpl implements ConsentService {
         ChangeConsent2ConsentEntity.INSTANCE.convert(request, consentEntity);
         return ConsentEntity2CreateConsentResponse.INSTANCE.convert(repository.save(consentEntity));
     }
+
+    @Override
+    public CreateConsentResponse revoke(String id) {
+        ConsentEntity consentEntity = byId(id);
+        consentEntity.setStatus(StatusEnum.REVOKED);
+        return ConsentEntity2CreateConsentResponse.INSTANCE.convert(repository.save(consentEntity));
+    }
 }
