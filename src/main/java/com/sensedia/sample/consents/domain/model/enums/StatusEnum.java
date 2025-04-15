@@ -23,4 +23,11 @@ public enum StatusEnum {
                 .findFirst()
                 .orElseThrow(NoSuchElementException::new);
     }
+
+    public static StatusEnum byId(String id)  {
+        return Arrays.stream(values())
+                .filter(s -> s.name().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
 }
