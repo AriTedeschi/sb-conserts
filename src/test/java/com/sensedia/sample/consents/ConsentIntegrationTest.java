@@ -128,19 +128,58 @@ class ConsentIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/consents")
+        String response = mockMvc.perform(post("/consents")
                         .contentType(APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.cpf").exists())
-                .andExpect(jsonPath("$.cpf").value("067.***.***-70"));
+                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String id1 = response.split("\"id\":\"")[1].split("\"")[0];
 
+        //wait 5 seconds
+        Thread.sleep(5000);
+
+        response = mockMvc.perform(post("/consents")
+                        .contentType(APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cpf").exists())
+                .andExpect(jsonPath("$.cpf").value("067.***.***-70"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String id2 = response.split("\"id\":\"")[1].split("\"")[0];
+
+        //Tests orderBy
         mockMvc.perform(get("/consents")
-                        .param("status", "EXPIRED"))
+                        .param("status", "EXPIRED")
+                        .param("orderBy", "id")
+                        .param("direction", "DESC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").exists())
+                .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"))
+                .andExpect(jsonPath("$.content[0].id").value(id2));
+
+        //Tests filters
+        mockMvc.perform(get("/consents")
+                        .param("id", id1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").exists())
                 .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"));
 
+        //Tests order by
+        mockMvc.perform(get("/consents")
+                        .param("orderBy", "id")
+                        .param("direction", "ASC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").exists())
+                .andExpect(jsonPath("$.content[0].cpf").value("067.***.***-70"))
+                .andExpect(jsonPath("$.content[0].id").value(id1));
+
+        //Tests filters with empty result
         mockMvc.perform(get("/consents")
                         .param("status", "ACTIVE"))
                 .andExpect(status().isOk())
