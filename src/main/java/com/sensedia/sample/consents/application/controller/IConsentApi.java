@@ -30,6 +30,7 @@ public interface IConsentApi {
 			}
 	)
 	ResponseEntity<CreateConsentResponse> create(@RequestBody CreateConsentRequest createRequest,
+												 @Parameter(description = "Optional language header, accepts en=English and pt=Portuguese")
 												 @RequestHeader(value = "Accept-Language",
 														 required = false, defaultValue = "en") String acceptLanguage,
 												 HttpServletRequest request);
@@ -44,9 +45,9 @@ public interface IConsentApi {
 			}
 	)
 	ResponseEntity<CreateConsentResponse> findById(@PathVariable String id,
-												 @RequestHeader(value = "Accept-Language",
-														 required = false, defaultValue = "en") String acceptLanguage,
-												 HttpServletRequest request);
+												   @Parameter(description = "Optional language header, accepts en=English and pt=Portuguese")
+												   @RequestHeader(value = "Accept-Language", required = false, defaultValue = "en") String acceptLanguage,
+												   HttpServletRequest request);
 	@GetMapping("/consents")
 	@Operation(
 			summary = "Search consents",
@@ -77,6 +78,21 @@ public interface IConsentApi {
 	)
 	ResponseEntity<CreateConsentResponse> change(@PathVariable String id,
 												 @RequestBody ChangeConsentRequest createRequest,
+												 @Parameter(description = "Optional language header, accepts en=English and pt=Portuguese")
+												 @RequestHeader(value = "Accept-Language", required = false, defaultValue = "en")
+												 String acceptLanguage,
+												 HttpServletRequest request);
+
+	@DeleteMapping("/consents/{id}")
+	@Operation(
+			summary = "Revoke consent by id",
+			responses = {
+					@ApiResponse(responseCode = "204", description = "Successful"),
+					@ApiResponse(responseCode = "422", description = "Field validation error format", content = @Content(schema = @Schema(implementation = ErrorMessageSearchExample.class))),
+			}
+	)
+	ResponseEntity<CreateConsentResponse> revoke(@PathVariable String id,
+												 @Parameter(description = "Optional language header, accepts en=English and pt=Portuguese")
 												 @RequestHeader(value = "Accept-Language", required = false, defaultValue = "en")
 												 String acceptLanguage,
 												 HttpServletRequest request);

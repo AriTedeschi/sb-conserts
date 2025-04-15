@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,6 +63,12 @@ public class ConsentApi implements IConsentApi {
 														String acceptLanguage, HttpServletRequest request) {
 		CreateConsentResponse response = service.change(id, changeConsentRequest);
 		return ResponseEntity.ok(response);
+	}
+
+	@Override
+	public ResponseEntity<CreateConsentResponse> revoke(String id, String acceptLanguage, HttpServletRequest request) {
+		CreateConsentResponse response = service.revoke(id);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
 	}
 
 }

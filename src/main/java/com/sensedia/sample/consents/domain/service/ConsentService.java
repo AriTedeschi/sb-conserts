@@ -14,4 +14,5 @@ public interface ConsentService {
     CreateConsentResponse findById(String id);
     Page<ConsentResponse> search(Pageable pageable, Map<String, String> filters);
     CreateConsentResponse change(String id, ChangeConsentRequest changeConsentRequest);
+    CreateConsentResponse revoke(String id);
 }
